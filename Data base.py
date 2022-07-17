@@ -3,7 +3,7 @@ import sqlite3
 
 
 # USER PROFILE DATABASE
-connect_userProfile = sqlite3.connect('User profile.db')    # Connecting database file to python file
+connect_userProfile = sqlite3.connect('xProfile.db')    # Connecting database file to python file
 
 c = connect_userProfile.cursor()    # Creating database with columns
 c.execute("""
@@ -15,12 +15,12 @@ c.execute("""
 
 
 # CONTENT MANAGEMENT DATABASE
-connect_userContent = sqlite3.connect('User content.db')    # Connecting database file to python file
+connect_userContent = sqlite3.connect('xContent.db')    # Connecting database file to python file
 
 c = connect_userContent.cursor()    # Creating database with columns
 c.execute("""
     CREATE TABLE IF NOT EXISTS UserContent(
-    username2 TEXT NOT NULL,
-    password2 TEXT NOT NULL,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL,
     platform TEXT NOT NULL)
 """)
