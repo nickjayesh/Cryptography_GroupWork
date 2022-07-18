@@ -1,4 +1,4 @@
-# The following code includes asymmetric encryption
+# The following code includes asymmetric encryption with RSA
 # Key generation, Secure key storage and Reading those keys
 
 import cryptography
