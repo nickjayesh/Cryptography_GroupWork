@@ -3,23 +3,20 @@ import sqlite3
 
 
 # USER PROFILE DATABASE
-connect_userProfile = sqlite3.connect('xProfile.db')    # Connecting database file to python file
+connect_userProfile = sqlite3.connect('APP database.db')    # Connecting database file to python file
 
 c = connect_userProfile.cursor()    # Creating database with columns
 c.execute("""
     CREATE TABLE IF NOT EXISTS UserProfile(
+    id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
     salt TEXT NOT NULL)
 """)
 
-
-# CONTENT MANAGEMENT DATABASE
-connect_userContent = sqlite3.connect('xContent.db')    # Connecting database file to python file
-
-c = connect_userContent.cursor()    # Creating database with columns
 c.execute("""
     CREATE TABLE IF NOT EXISTS UserContent(
+    id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
     platform TEXT NOT NULL)
