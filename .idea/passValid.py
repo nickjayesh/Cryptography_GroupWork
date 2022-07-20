@@ -16,12 +16,20 @@ connect_userProfile = sqlite3.connect('User profile.db')    # Connecting databas
 
 myCursor = connect_userProfile.cursor()    # Creating database with columns
 myCursor.execute("""
-    CREATE TABLE IF NOT EXISTS UserProfileTable(
+    CREATE TABLE IF NOT EXISTS UserProfile(
+    id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
-    password TEXT NOT NULL
-        )
+    password TEXT NOT NULL,
+    salt TEXT NOT NULL)
 """)
 
+myCursor.execute("""
+    CREATE TABLE IF NOT EXISTS UserContent(
+    id INTEGER PRIMARY KEY,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL,
+    platform TEXT NOT NULL)
+""")
 
 
 
