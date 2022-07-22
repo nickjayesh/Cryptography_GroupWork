@@ -12,88 +12,173 @@ import bcrypt
 
 
 # USER PROFILE DATABASE
-connect_userProfile = sqlite3.connect('User profile.db')    # Connecting database file to python file
+# connect_userProfile = sqlite3.connect('User profile.db')    # Connecting database file to python file
 
-myCursor = connect_userProfile.cursor()    # Creating database with columns
+# Initiating the database for the application
+with sqlite3.connect("PassWordStorageApp.db") as db:
+    myCursor = db.cursor()
+
+
 myCursor.execute("""
-    CREATE TABLE IF NOT EXISTS UserProfile(
+    CREATE TABLE IF NOT EXISTS userProfileTable(
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
-    salt TEXT NOT NULL)
+    salt TEXT NOT NULL);
 """)
 
-myCursor.execute("""
-    CREATE TABLE IF NOT EXISTS UserContent(
-    id INTEGER PRIMARY KEY,
-    username TEXT NOT NULL,
-    password TEXT NOT NULL,
-    platform TEXT NOT NULL)
-""")
-
-
-
-
-#welcome page
-
+# Creating the window
 window = Tk()
-window.title("Applied Cryptography")
+window.update()
+window.title("Password Storage Application")
 window.geometry('450x400')
-a='#940721'
-Frame(window,width=450,height=400,bg=a).place(x=0,y=0)
 
-label1=Label(window,text='WELCOME...',fg='white',bg=a,font=('Calibri (Body)',18,'bold'))
-label1.place(x=50,y=80)
-
-
+a = '#9fbdbf'
+Frame(window, width=450, height=400, bg=a).place(x=0, y=0)
+label1 = Label(window,text='WELCOME...', fg='white',bg=a, font=('Calibri (Body)', 18, 'bold'))
+label1.place(x=50, y=80)
 
 
+# Function to create SignUp Page
+def signup_page():
 
-def main_page():
-
-
-
-    m=Tk()
-    m.title('Database page')
-    m.geometry('450x400')
+    # To create page in same window
+    for widget in window.winfo_children():
+        widget.destroy()
 
     b='#9fbdbf'
-    Frame(m,width=450,height=400,bg=b).place(x=0,y=0)
+    Frame(window, width=450,height=400,bg=b).place(x=0,y=0)
+    label3 = Label(window,text='Sign Up',fg='white',bg=b, font=('Calibri (Body)',25,'bold'))
+    label3.place(x =140,y=30)
 
-    Table=ttk.Treeview(m)
-    #naming the columns
-    Table['columns']= ("Username","Password","Description")
+    # user input- username
+    def enter(e):
+        label4.delete(0, 'end')
+
+    def leave(e):
+        if label4.get() == "":
+            label4.insert(0, 'Username')
+
+    label4=Entry(window,width=30, fg='black', border=0, bg='#9fbdbf',font=('Calibri (Body)',12))
+    label4.place(x=90, y=110)
+    label4.insert(0, 'Username')
+    label4.bind("<FocusIn> ", enter)
+    label4.bind("<FocusOut> ", leave)
+
+    Frame(window, width=300, height=2, bg='black').place(x=85, y=132)
+
+    # user input - password
+    def enter(e):
+        label5.delete(0, 'end')
+
+    def leave(e):
+        if label5.get() == "":
+            label5.insert(0, 'Password',)
+
+
+    label5 = Entry(window, width= 30, fg='black', border=0, bg='#9fbdbf', font=('Calibri (Body)', 12))
+    label5.place(x=90, y=160)
+    label5.insert(0, 'Password')
+    label5.bind("<FocusIn> ", enter)
+    label5.bind("<FocusOut> ", leave)
+    Frame(window, width=300, height=2, bg='black').place(x=85, y=180)
+
+    # user input- confirm password
+    def enter(e):
+        label6.delete(0, 'end')
+
+    def leave(e):
+        if label6.get() == "":
+            label6.insert(0, ' Confirm Password')
+
+
+    label6 = Entry(window, width= 30, fg='black', border=0,bg='#9fbdbf', font=('Calibri (Body)', 12))
+    label6.place(x=90,y= 210)
+    label6.insert(0, ' Confirm Password')
+    label6.bind("<FocusIn> ", enter)
+    label6.bind("<FocusOut> ", leave)
+
+    def confirm_password(): # Confirming password
+        username = label4.get()
+        pass1 = label5.get()
+        pass2 = label6.get()
+        if pass1 == pass2:
+            myCursor.execute("DELETE FROM userProfileTable WHERE id = 1")
+
+            bytePwd = pass1.encode('utf-8')
+            # Generate salt
+            # Generate a separate salt for each for better security
+            my_salt = bcrypt.gensalt()
+
+            # Hash password
+            hashed_password = bcrypt.hashpw(bytePwd, my_salt)
+            print(hashed_password)
+            print("Password validation successful")
+
+            # Inserting user information to the DB
+            myCursor.execute("INSERT INTO userProfileTable(id, username,password,salt) VALUES(?,?,?,?)", (1, username, hashed_password, my_salt))
+            db.commit()
+
+            main_page()
+        else:
+            label8 = Label(window, text='Password does not match!', fg='white', bg=b, font=('Calibri (Body)', 10, 'bold'))
+            label8.place(x=90, y=250)
+
+    Frame(window,width=300, height=2, bg='black').place(x=85,y=230)
+
+
+    def hover_effect(e):
+        button2["bg"] = "#295154"
+
+    def leave_hover_effect(e):
+        button2["bg"] ="White"
+
+    button2=Button(window,width= 10,height= 1,text= 'Continue', command=confirm_password, border=0,fg=b,bg = 'white',cursor="hand2")
+    button2.place(x=350,y=300)
+    button2.bind("<Enter>",hover_effect )
+    button2.bind("<Leave>",leave_hover_effect )
+
+    button4=Button(window,width= 10,height= 1,text= 'Back', command=window.destroy, border=0,fg=a,bg ='white',cursor="hand2")
+    button4.place(x=20,y=300)
+
+
+# Function to display main dashboard
+def main_page():
+    for widget in window.winfo_children():
+        widget.destroy()
+
+    b = '#9fbdbf'
+    Frame(window, width=450, height=400, bg=b).place(x=0, y=0)
+
+    # Table creation
+    table = ttk.Treeview(window)
+    table['columns']= ("Username", "Password", "Description")
 
     #formatting  the column
-    Table.column('#0', width=120, minwidth=25)
-    Table.column("Username", anchor=W,width=120)
-    Table.column("Password",anchor=CENTER,width= 80)
-    Table.column("Description", anchor=W , width=120)
+    table.column('#0', width=120, minwidth=25)
+    table.column("Username", anchor=W,width=120)
+    table.column("Password",anchor=CENTER,width= 80)
+    table.column("Description", anchor=W , width=120)
 
     #headings
 
-    Table.heading("#0",text="ID",anchor=W)
-    Table.heading("Username",text="Username",anchor=W)
-    Table.heading("Password",text="Password", anchor=CENTER)
-    Table.heading("Description", text="Platform",anchor=W)
+    table.heading("#0",text="ID",anchor=W)
+    table.heading("Username",text="Username",anchor=W)
+    table.heading("Password",text="Password", anchor=CENTER)
+    table.heading("Description", text="Platform",anchor=W)
 
-    #sample data
+    # Sample Data
+    table.insert(parent='',index='end',iid=0,text="1",values=("Dhinuk","1234","Hi"))
+    table.pack(pady=20)
 
-    Table.insert(parent='',index='end',iid=0,text="1",values=("Dhinuk","1234","Hi"))
-
-    Table.pack(pady=20)
-
-    #buttons
-
-
-
-    button7=Button(m,width= 10,height= 1,text= 'Add',command=addbutton_page, border=0,fg=b,bg = 'white',cursor="hand2")
+    # Buttons
+    button7 = Button(window,width= 10,height= 1,text= 'Add',command=addbutton_page, border=0,fg=b,bg = 'white',cursor="hand2")
     button7.place(x=350,y=250)
 
-    button8=Button(m,width= 10,height= 1,text= 'Modify',command=main_page, border=0,fg=b,bg = 'white',cursor="hand2")
+    button8 = Button(window,width= 10,height= 1,text= 'Modify',command=main_page, border=0,fg=b,bg = 'white',cursor="hand2")
     button8.place(x=350,y=300)
 
-    button9=Button(m,width= 10,height= 1,text= 'Remove',command=main_page, border=0,fg=b,bg = 'white',cursor="hand2")
+    button9 = Button(window,width= 10,height= 1,text= 'Remove',command=main_page, border=0,fg=b,bg = 'white',cursor="hand2")
     button9.place(x=350,y=350)
 
 
@@ -159,47 +244,47 @@ def addbutton_page():
 
 def login_page():
 
-
-    lp=Tk()
-    lp.title('Login')
-    lp.geometry('450x400')
+    for widget in window.winfo_children():
+        widget.destroy()
 
     b='#9fbdbf'
-    Frame(lp,width=450,height=400,bg=b).place(x=0,y=0)
-    label8=Label(lp,text='Login',fg='white',bg=b, font=('Calibri (Body)',25,'bold'))
-    label8.place(x =140,y=30)
+    Frame(window,width=450,height=400,bg=b).place(x=0,y=0)
+    label8 = Label(window,text='Login',fg='white',bg=b, font=('Calibri (Body)',25,'bold'))
+    label8.place(x=140, y=30)
 
     # entering username
     def enter(e):
         label9.delete(0, 'end')
     def leave(e):
-        if label9.get()=="":
+        if label9.get() == "":
             label9.insert(0, 'Username')
 
-    label9=Entry(lp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+    label9=Entry(window,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
     label9.place(x=90,y= 110)
     label9.insert(0, 'Username')
     label9.bind("<FocusIn> ",enter)
     label9.bind("<FocusOut> ",leave)
 
-    Frame(lp,width=300,height=2,bg='black').place(x=85,y=132)
+    Frame(window,width=300,height=2,bg='black').place(x=85,y=132)
 
     # entering the password
     def enter(e):
         label10.delete(0, 'end')
+
     def leave(e):
-        if label10.get()=="":
+        if label10.get() == "":
             label10.insert(0, 'Password',)
 
-    label10=Entry(lp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+    label10=Entry(window,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
     label10.place(x=90,y= 160)
     label10.insert(0, 'Password')
     label10.bind("<FocusIn> ",enter)
     label10.bind("<FocusOut> ",leave)
 
-    Frame(lp,width=300,height=2,bg='black').place(x=85,y=180)
+    Frame(window,width=300,height=2,bg='black').place(x=85,y=180)
 
-    def PassValidation(): # Fuction to validate Login Password
+    # Function to validate Login Password
+    def PassValidation():
         logname = label9.get()
         userpass = label10.get()
         bytePwd1 = userpass.encode('utf-8')
@@ -217,117 +302,20 @@ def login_page():
                 main_page()
             else:
                 # Label to print Incorrect password or username
-                label4=Label(lp,text='Incorrect User Name Or Password',fg='white',bg=b, font=('Calibri (Body)',10,'bold'))
+                label4=Label(window,text='Incorrect User Name Or Password',fg='white',bg=b, font=('Calibri (Body)',10,'bold'))
                 label4.place(x =90,y=200)
                 #buttons
 
-    button5=Button(lp,width= 10,height= 1,text= 'Continue',command=PassValidation, border=0,fg=b,bg = 'white',cursor="hand2")
+    button5=Button(window,width= 10,height= 1,text= 'Continue',command=PassValidation, border=0,fg=b,bg = 'white',cursor="hand2")
     button5.place(x=350,y=300)
 
-    button6=Button(lp,width= 10,height= 1,text= 'Back',command=lp.destroy, border=0,fg=a,bg ='white',cursor="hand2")
+    button6=Button(window, width= 10, height= 1, text= 'Back', command=window.destroy, border=0, fg=a, bg ='white', cursor="hand2")
     button6.place(x=20,y=300)
 
 
 
 
-def signup_page():
 
-    sp=Tk()
-    sp.title('Signup page')
-    sp.geometry('450x400')
-    #background colour for sign up page
-    b='#9fbdbf'
-    Frame(sp,width=450,height=400,bg=b).place(x=0,y=0)
-    label3=Label(sp,text='Sign Up',fg='white',bg=b, font=('Calibri (Body)',25,'bold'))
-    label3.place(x =140,y=30)
-
-
-
-    #user input- username
-    def enter(e):
-        label4.delete(0, 'end')
-    def leave(e):
-        if label4.get()=="":
-            label4.insert(0, 'Username')
-
-    label4=Entry(sp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
-    label4.place(x=90,y= 110)
-    label4.insert(0, 'Username')
-    label4.bind("<FocusIn> ",enter)
-    label4.bind("<FocusOut> ",leave)
-
-    Frame(sp,width=300,height=2,bg='black').place(x=85,y=132)
-
-    #user input- password
-    def enter(e):
-        label5.delete(0, 'end')
-    def leave(e):
-        if label5.get()=="":
-            label5.insert(0, 'Password',)
-
-
-    label5=Entry(sp ,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
-    label5.place(x=90,y= 160)
-    label5.insert(0, 'Password')
-    label5.bind("<FocusIn> ",enter)
-    label5.bind("<FocusOut> ",leave)
-
-    Frame(sp,width=300,height=2,bg='black').place(x=85,y=180)
-
-
-
-    #user input- confirm password
-    def enter(e):
-        label6.delete(0, 'end')
-    def leave(e):
-        if label6.get()=="":
-            label6.insert(0, ' Confirm Password')
-
-
-    label6=Entry(sp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
-    label6.place(x=90,y= 210)
-    label6.insert(0, ' Confirm Password')
-    label6.bind("<FocusIn> ",enter)
-    label6.bind("<FocusOut> ",leave)
-
-    def conPass(): # Confirming password
-        userName = label4.get()
-        pass1 = label5.get()
-        pass2 = label6.get()
-        if pass1 == pass2:
-            bytePwd = pass1.encode('utf-8')
-            # Generate salt
-            # Generate a separate salt for each for better security
-            mySalt = bcrypt.gensalt()
-
-            # Hash password
-            hashedPassword = bcrypt.hashpw(bytePwd, mySalt)
-            # Inserting user information to the DB
-            myCursor.execute("INSERT INTO userProfileTable (username,password) VALUES(?,?)",(userName,hashedPassword))
-            main_page()
-
-        else:
-            label8=Label(sp,text='Re-enter password',fg='white',bg=b, font=('Calibri (Body)',10,'bold'))
-            label8.place(x =90,y=250)
-
-    Frame(sp,width=300,height=2,bg='black').place(x=85,y=230)
-
-
-    #buttons
-
-    def hover_effect(e):
-        button2["bg"]= "#295154"
-
-    def leave_hover_effect(e):
-        button2["bg"]="White"
-
-    button2=Button(sp,width= 10,height= 1,text= 'Continue',command=conPass, border=0,fg=b,bg = 'white',cursor="hand2")
-    button2.place(x=350,y=300)
-    button2.bind("<Enter>",hover_effect )
-    button2.bind("<Leave>",leave_hover_effect )
-
-    button4=Button(sp,width= 10,height= 1,text= 'Back',command=sp.destroy, border=0,fg=a,bg ='white',cursor="hand2")
-    button4.place(x=20,y=300)
 
 
 
