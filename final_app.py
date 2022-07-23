@@ -17,8 +17,8 @@ myCursor.execute("""
     CREATE TABLE IF NOT EXISTS UserProfile(
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
-    password TEXT NOT NULL,
-    salt TEXT NOT NULL)
+    password TEXT NOT NULL
+    )
 """)
 
 myCursor.execute("""
@@ -68,6 +68,8 @@ def decrypt_data(data):
         )
     )
 
+
+sample_hash = b'$2a$12$xAH3OvTh9D8xEYeKvGkfcO'
 
 # Creating the window
 window = Tk()
@@ -148,12 +150,9 @@ def signup_page():
             myCursor.execute("DELETE FROM UserProfile WHERE id = 1")
 
             bytePwd = pass1.encode('utf-8')
-            # Generate salt
-            # Generate a separate salt for each for better security
-            my_salt = bcrypt.gensalt()
 
             # Hash password
-            hashed_password = bcrypt.hashpw(bytePwd, my_salt)
+            hashed_password = bcrypt.hashpw(bytePwd, sample_hash)
             print(hashed_password)
             print("Password validation successful")
 
@@ -161,14 +160,13 @@ def signup_page():
             # print(encoded_username.decode('unicode_escape'))
             
             enc_username = encrypt_data(username.encode('ascii'))
-            enc_salt = encrypt_data(my_salt.encode('ascii'))
 
             # Inserting user information to the DB
-            myCursor.execute("INSERT INTO UserProfile(id, username,password,salt) VALUES(?,?,?,?)",
+            myCursor.execute("INSERT INTO UserProfile(id, username,password) VALUES(?,?,?)",
                              (1, 
                               enc_username,
                               hashed_password,
-                              enc_salt))
+                              ))
             connect_userProfile.commit()
             main_page()
         else:
@@ -235,24 +233,19 @@ def login_page():
 
     Frame(window,width=300,height=2,bg='black').place(x=85,y=180)
 
-    # Function to validate Login Password
     def PassValidation():
-        login_username = label9.get()
-        login_password = label10.get()
-        bytePwd = login_password.encode('utf-8')
-        enc_salt = myCursor.execute("SELECT salt FROM UserProfile where id = 1")
-        login_salt = decrypt_data(enc_salt)
-        print(login_salt)
+        login_password = bcrypt.hashpw(label10.get().encode('utf-8'),sample_hash)
+        myCursor.execute("SELECT password FROM UserProfile where id = 1 AND password = ?", [(login_password)])
+        found = myCursor.fetchone()
+        print(found)
+        if found:
+            main_page()
+        else:
+            # Label to print Incorrect password or username
+            label4 = Label(window, text='Incorrect User Name Or Password', fg='white', bg=b, font=('Calibri (Body)', 10, 'bold'))
+            label4.place(x=90, y=200)
 
 
-        # for i in check:
-            # if logname == i[0] and hashedPassword1 == i[1]: # Checking DB
-                # main_page()
-            # else:
-                # Label to print Incorrect password or username
-                # label4=Label(window,text='Incorrect User Name Or Password',fg='white',bg=b, font=('Calibri (Body)',10,'bold'))
-                # label4.place(x =90,y=200)
-                #buttons
 
     button5=Button(window,width= 10,height= 1,text= 'Continue',command=PassValidation, border=0,fg=b,bg = 'white',cursor="hand2")
     button5.place(x=350,y=300)
