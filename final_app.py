@@ -177,20 +177,19 @@ def signup_page():
 
     Frame(window,width=300, height=2, bg='black').place(x=85,y=230)
 
-
     def hover_effect(e):
         button2["bg"] = "#295154"
 
     def leave_hover_effect(e):
         button2["bg"] ="White"
 
-    button2=Button(window,width= 10,height= 1,text= 'Continue', command=confirm_password, border=0,fg=b,bg = 'white',cursor="hand2")
+    button2=Button(window, width=10, height=1, text='Continue', command=confirm_password, border=0, fg=b, bg='white', cursor="hand2")
     button2.place(x=350,y=300)
     button2.bind("<Enter>",hover_effect )
     button2.bind("<Leave>",leave_hover_effect )
 
-    button4=Button(window,width= 10,height= 1,text= 'Login', command=login_page, border=0,fg=a,bg ='white',cursor="hand2")
-    button4.place(x=20,y=300)
+    button4=Button(window,width= 10, height=1, text='Login', command=login_page, border=0, fg=a, bg='white', cursor="hand2")
+    button4.place(x=20, y=300)
 
 
 # Function to load the login page
@@ -238,25 +237,21 @@ def login_page():
 
     # Function to validate Login Password
     def PassValidation():
-        logname = label9.get()
-        userpass = label10.get()
-        bytePwd1 = userpass.encode('utf-8')
-        # Generate salt
-        # Generate a separate salt for each for better security
-        mySalt = bcrypt.gensalt()
+        login_username = label9.get()
+        login_password = label10.get()
+        bytePwd = login_password.encode('utf-8')
+        enc_salt = myCursor.execute("SELECT salt FROM UserProfile where id = 1")
+        login_salt = decrypt_data(enc_salt)
+        print(login_salt)
 
-        # Hash password
-        hashedPassword1 = bcrypt.hashpw(bytePwd1, mySalt)
 
-        myCursor.execute("SELECT * FROM UserProfile WHERE id=1")
-        check = myCursor.fetchall()
-        for i in check:
-            if logname == i[0] and hashedPassword1 == i[1]: # Checking DB
-                main_page()
-            else:
+        # for i in check:
+            # if logname == i[0] and hashedPassword1 == i[1]: # Checking DB
+                # main_page()
+            # else:
                 # Label to print Incorrect password or username
-                label4=Label(window,text='Incorrect User Name Or Password',fg='white',bg=b, font=('Calibri (Body)',10,'bold'))
-                label4.place(x =90,y=200)
+                # label4=Label(window,text='Incorrect User Name Or Password',fg='white',bg=b, font=('Calibri (Body)',10,'bold'))
+                # label4.place(x =90,y=200)
                 #buttons
 
     button5=Button(window,width= 10,height= 1,text= 'Continue',command=PassValidation, border=0,fg=b,bg = 'white',cursor="hand2")
