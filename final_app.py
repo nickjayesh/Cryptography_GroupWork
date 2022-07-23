@@ -248,7 +248,7 @@ def login_page():
         # Hash password
         hashedPassword1 = bcrypt.hashpw(bytePwd1, mySalt)
 
-        myCursor.execute("SELECT FROM UserProfile WHERE id=1")
+        myCursor.execute("SELECT * FROM UserProfile WHERE id=1")
         check = myCursor.fetchall()
         for i in check:
             if logname == i[0] and hashedPassword1 == i[1]: # Checking DB
@@ -262,7 +262,7 @@ def login_page():
     button5=Button(window,width= 10,height= 1,text= 'Continue',command=PassValidation, border=0,fg=b,bg = 'white',cursor="hand2")
     button5.place(x=350,y=300)
 
-    button6=Button(window, width= 10, height= 1, text= 'Back', command=window.destroy, border=0, fg=a, bg ='white', cursor="hand2")
+    button6=Button(window, width= 10, height= 1, text= 'Back', command=signup_page, border=0, fg=a, bg ='white', cursor="hand2")
     button6.place(x=20,y=300)
 
 
