@@ -9,21 +9,24 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 # SQLITE was used since it is easy to use and simple enough for this project.
 
-
 # USER PROFILE DATABASE
-# connect_userProfile = sqlite3.connect('User profile.db')    # Connecting database file to python file
+connect_userProfile = sqlite3.connect('User profile.db')   # Connecting database file to python file
 
-# Initiating the database for the application
-with sqlite3.connect("PassWordStorageApp.db") as db:
-    myCursor = db.cursor()
-
-
+myCursor = connect_userProfile.cursor()    # Creating database with columns
 myCursor.execute("""
-    CREATE TABLE IF NOT EXISTS userProfileTable(
+    CREATE TABLE IF NOT EXISTS UserProfile(
     id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
-    salt TEXT NOT NULL);
+    salt TEXT NOT NULL)
+""")
+
+myCursor.execute("""
+    CREATE TABLE IF NOT EXISTS UserContent(
+    id INTEGER PRIMARY KEY,
+    username TEXT NOT NULL,
+    password TEXT NOT NULL,
+    platform TEXT NOT NULL)
 """)
 
 # Reading Private Key
@@ -142,7 +145,7 @@ def signup_page():
         pass1 = label5.get()
         pass2 = label6.get()
         if pass1 == pass2:
-            myCursor.execute("DELETE FROM userProfileTable WHERE id = 1")
+            myCursor.execute("DELETE FROM UserProfile WHERE id = 1")
 
             bytePwd = pass1.encode('utf-8')
             # Generate salt
@@ -161,12 +164,12 @@ def signup_page():
             enc_salt = encrypt_data(my_salt.encode('ascii'))
 
             # Inserting user information to the DB
-            myCursor.execute("INSERT INTO userProfileTable(id, username,password,salt) VALUES(?,?,?,?)", 
+            myCursor.execute("INSERT INTO UserProfile(id, username,password,salt) VALUES(?,?,?,?)",
                              (1, 
                               enc_username,
                               hashed_password,
                               enc_salt))
-            db.commit()
+            connect_userProfile.commit()
             main_page()
         else:
             label8 = Label(window, text='Password does not match!', fg='white', bg=b, font=('Calibri (Body)', 10, 'bold'))
@@ -186,8 +189,81 @@ def signup_page():
     button2.bind("<Enter>",hover_effect )
     button2.bind("<Leave>",leave_hover_effect )
 
-    button4=Button(window,width= 10,height= 1,text= 'Back', command=window.destroy, border=0,fg=a,bg ='white',cursor="hand2")
+    button4=Button(window,width= 10,height= 1,text= 'Login', command=login_page, border=0,fg=a,bg ='white',cursor="hand2")
     button4.place(x=20,y=300)
+
+
+# Function to load the login page
+def login_page():
+
+    for widget in window.winfo_children():
+        widget.destroy()
+
+    b='#9fbdbf'
+    Frame(window,width=450,height=400,bg=b).place(x=0,y=0)
+    label8 = Label(window,text='Login',fg='white',bg=b, font=('Calibri (Body)',25,'bold'))
+    label8.place(x=140, y=30)
+
+    # entering username
+    def enter(e):
+        label9.delete(0, 'end')
+
+    def leave(e):
+        if label9.get() == "":
+            label9.insert(0, 'Username')
+
+    label9 = Entry(window, width=30, fg='black', border=0, bg='#9fbdbf', font=('Calibri (Body)', 12))
+    label9.place(x=90,y= 110)
+    label9.insert(0, 'Username')
+    label9.bind("<FocusIn> ", enter)
+    label9.bind("<FocusOut> ", leave)
+
+    Frame(window,width=300,height=2,bg='black').place(x=85,y=132)
+
+    # entering the password
+    def enter(e):
+        label10.delete(0, 'end')
+
+    def leave(e):
+        if label10.get() == "":
+            label10.insert(0, 'Password',)
+
+    label10=Entry(window,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+    label10.place(x=90,y= 160)
+    label10.insert(0, 'Password')
+    label10.bind("<FocusIn> ",enter)
+    label10.bind("<FocusOut> ",leave)
+
+    Frame(window,width=300,height=2,bg='black').place(x=85,y=180)
+
+    # Function to validate Login Password
+    def PassValidation():
+        logname = label9.get()
+        userpass = label10.get()
+        bytePwd1 = userpass.encode('utf-8')
+        # Generate salt
+        # Generate a separate salt for each for better security
+        mySalt = bcrypt.gensalt()
+
+        # Hash password
+        hashedPassword1 = bcrypt.hashpw(bytePwd1, mySalt)
+
+        myCursor.execute("SELECT FROM UserProfile WHERE id=1")
+        check = myCursor.fetchall()
+        for i in check:
+            if logname == i[0] and hashedPassword1 == i[1]: # Checking DB
+                main_page()
+            else:
+                # Label to print Incorrect password or username
+                label4=Label(window,text='Incorrect User Name Or Password',fg='white',bg=b, font=('Calibri (Body)',10,'bold'))
+                label4.place(x =90,y=200)
+                #buttons
+
+    button5=Button(window,width= 10,height= 1,text= 'Continue',command=PassValidation, border=0,fg=b,bg = 'white',cursor="hand2")
+    button5.place(x=350,y=300)
+
+    button6=Button(window, width= 10, height= 1, text= 'Back', command=window.destroy, border=0, fg=a, bg ='white', cursor="hand2")
+    button6.place(x=20,y=300)
 
 
 # Function to display main dashboard
@@ -288,77 +364,6 @@ def addbutton_page():
 
     button6=Button(ap,width= 10,height= 1,text= 'Add', border=0,fg=b,bg = 'white',cursor="hand2")
     button6.place(x=180,y=300)
-
-
-def login_page():
-
-    for widget in window.winfo_children():
-        widget.destroy()
-
-    b='#9fbdbf'
-    Frame(window,width=450,height=400,bg=b).place(x=0,y=0)
-    label8 = Label(window,text='Login',fg='white',bg=b, font=('Calibri (Body)',25,'bold'))
-    label8.place(x=140, y=30)
-
-    # entering username
-    def enter(e):
-        label9.delete(0, 'end')
-    def leave(e):
-        if label9.get() == "":
-            label9.insert(0, 'Username')
-
-    label9=Entry(window,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
-    label9.place(x=90,y= 110)
-    label9.insert(0, 'Username')
-    label9.bind("<FocusIn> ",enter)
-    label9.bind("<FocusOut> ",leave)
-
-    Frame(window,width=300,height=2,bg='black').place(x=85,y=132)
-
-    # entering the password
-    def enter(e):
-        label10.delete(0, 'end')
-
-    def leave(e):
-        if label10.get() == "":
-            label10.insert(0, 'Password',)
-
-    label10=Entry(window,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
-    label10.place(x=90,y= 160)
-    label10.insert(0, 'Password')
-    label10.bind("<FocusIn> ",enter)
-    label10.bind("<FocusOut> ",leave)
-
-    Frame(window,width=300,height=2,bg='black').place(x=85,y=180)
-
-    # Function to validate Login Password
-    def PassValidation():
-        logname = label9.get()
-        userpass = label10.get()
-        bytePwd1 = userpass.encode('utf-8')
-        # Generate salt
-        # Generate a separate salt for each for better security
-        mySalt = bcrypt.gensalt()
-
-        # Hash password
-        hashedPassword1 = bcrypt.hashpw(bytePwd1, mySalt)
-
-        myCursor.execute("SELECT * FROM userProfileTable")
-        check = myCursor.fetchall()
-        for i in check:
-            if logname == i[0] and hashedPassword1 == i[1]: # Checking DB
-                main_page()
-            else:
-                # Label to print Incorrect password or username
-                label4=Label(window,text='Incorrect User Name Or Password',fg='white',bg=b, font=('Calibri (Body)',10,'bold'))
-                label4.place(x =90,y=200)
-                #buttons
-
-    button5=Button(window,width= 10,height= 1,text= 'Continue',command=PassValidation, border=0,fg=b,bg = 'white',cursor="hand2")
-    button5.place(x=350,y=300)
-
-    button6=Button(window, width= 10, height= 1, text= 'Back', command=window.destroy, border=0, fg=a, bg ='white', cursor="hand2")
-    button6.place(x=20,y=300)
 
 
 
