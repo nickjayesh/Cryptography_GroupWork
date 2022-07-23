@@ -262,7 +262,7 @@ def login_page():
     button5=Button(window,width= 10,height= 1,text= 'Continue',command=PassValidation, border=0,fg=b,bg = 'white',cursor="hand2")
     button5.place(x=350,y=300)
 
-    button6=Button(window, width= 10, height= 1, text= 'Back', command=signup_page, border=0, fg=a, bg ='white', cursor="hand2")
+    button6=Button(window, width= 10, height= 1, text= 'Sign In', command=signup_page, border=0, fg=a, bg ='white', cursor="hand2")
     button6.place(x=20,y=300)
 
 
