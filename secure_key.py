@@ -53,26 +53,33 @@ with open("public_key.pem", "rb") as key_file:
         key_file.read(),
         backend=default_backend()
     )
+# message = b'encrypt me!'
 
-# Encryption with Public Key
-message = b'encrypt me!'
-encrypted = public_key.encrypt(
-    message,
-    padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None
+
+def encrypt_data(data):
+    return public_key.encrypt(
+        data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
     )
-)
 
-# Decryption with Private Key
-original_message = private_key.decrypt(
-    encrypted,
-    padding.OAEP(
-        mgf=padding.MGF1(algorithm=hashes.SHA256()),
-        algorithm=hashes.SHA256(),
-        label=None
+
+# encrypted_data = encrypt_data(message)
+
+
+def decrypt_data(data):
+    return private_key.decrypt(
+        data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
     )
-)
 
-print(message == original_message)
+
+# original_message = decrypt_data(encrypted_data)
+# print(message == original_message)

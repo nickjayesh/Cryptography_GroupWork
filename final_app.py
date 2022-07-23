@@ -1,13 +1,12 @@
-from distutils.cmd import Command
-from logging import root
-from msilib import sequence
 from tkinter import *
 from tkinter.ttk import Progressbar
 from tkinter import ttk
-from turtle import back, onclick
-import tkinter as tk
 import sqlite3
 import bcrypt
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import padding
 # SQLITE was used since it is easy to use and simple enough for this project.
 
 
@@ -26,6 +25,46 @@ myCursor.execute("""
     password TEXT NOT NULL,
     salt TEXT NOT NULL);
 """)
+
+# Reading Private Key
+with open("private_key.pem", "rb") as key_file:
+    private_key = serialization.load_pem_private_key(
+        key_file.read(),
+        password=None,
+        backend=default_backend()
+    )
+
+# Reading Public Key
+with open("public_key.pem", "rb") as key_file:
+    public_key = serialization.load_pem_public_key(
+        key_file.read(),
+        backend=default_backend()
+    )
+
+
+# Function to encrypt data
+def encrypt_data(data):
+    return public_key.encrypt(
+        data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+
+
+# Function to decrypt data
+def decrypt_data(data):
+    return private_key.decrypt(
+        data,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+
 
 # Creating the window
 window = Tk()
@@ -115,10 +154,19 @@ def signup_page():
             print(hashed_password)
             print("Password validation successful")
 
-            # Inserting user information to the DB
-            myCursor.execute("INSERT INTO userProfileTable(id, username,password,salt) VALUES(?,?,?,?)", (1, username, hashed_password, my_salt))
-            db.commit()
+            # encoded_username = username.encode('ascii')
+            # print(encoded_username.decode('unicode_escape'))
+            
+            enc_username = encrypt_data(username.encode('ascii'))
+            enc_salt = encrypt_data(my_salt.encode('ascii'))
 
+            # Inserting user information to the DB
+            myCursor.execute("INSERT INTO userProfileTable(id, username,password,salt) VALUES(?,?,?,?)", 
+                             (1, 
+                              enc_username,
+                              hashed_password,
+                              enc_salt))
+            db.commit()
             main_page()
         else:
             label8 = Label(window, text='Password does not match!', fg='white', bg=b, font=('Calibri (Body)', 10, 'bold'))
