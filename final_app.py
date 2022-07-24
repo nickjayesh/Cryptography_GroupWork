@@ -182,8 +182,8 @@ def signup_page():
 
     button2=Button(window, width=10, height=1, text='Continue', command=confirm_password, border=0, fg=b, bg='white', cursor="hand2")
     button2.place(x=350,y=300)
-    button2.bind("<Enter>",hover_effect )
-    button2.bind("<Leave>",leave_hover_effect )
+    button2.bind("<Enter>", hover_effect)
+    button2.bind("<Leave>", leave_hover_effect)
 
     button4=Button(window,width= 10, height=1, text='Login', command=login_page, border=0, fg=a, bg='white', cursor="hand2")
     button4.place(x=20, y=300)
@@ -266,11 +266,13 @@ def main_page():
     table['columns'] = ("Username", "Password", "Description")
 
     # formatting  the column
+    table.column('#0', width=120, minwidth=25)
     table.column("Username", anchor=W,width=120)
     table.column("Password",anchor=CENTER,width= 80)
     table.column("Description", anchor=W , width=120)
 
     # headings
+    table.heading("#0", text="ID", anchor=W)
     table.heading("Username",text="Username",anchor=W)
     table.heading("Password",text="Password", anchor=CENTER)
     table.heading("Description", text="Platform",anchor=W)
@@ -289,7 +291,7 @@ def main_page():
             if len(array) == 0:
                 break
 
-            table.insert(parent='', index='end', iid=1, values=(decrypt_data(array[i][1]), decrypt_data(array[i][2]), decrypt_data(array[i][3])))
+            table.insert(parent='', index='end', iid=1, text="1", values=(1, decrypt_data(array[i][1]), decrypt_data(array[i][2]), decrypt_data(array[i][3])))
             table.pack(pady=20)
 
             # print(decrypt_data(array[i][1]))
@@ -350,7 +352,7 @@ def main_page():
         Frame(ap, width=300, height=2, bg='black').place(x=85,y=230)
 
         def add_data():
-            table.insert(parent='', index='end', iid=1, values=(label11.get(), label12.get(), label13.get()))
+            table.insert(parent='', index='end', iid=1, text="1", values=(label11.get(), label12.get(), label13.get()))
             table.pack(pady=20)
 
             enc_username = encrypt_data(label11.get().encode('ascii'))
@@ -437,7 +439,7 @@ def main_page():
         def modify_data():
             for row in table.get_children():
                 table.delete(row)
-            table.insert(parent='', index='end', iid=1, values=(label17.get(), label18.get(), label19.get()))
+            table.insert(parent='', index='end', iid=1, text="1", values=(label17.get(), label18.get(), label19.get()))
             table.pack(pady=20)
 
             enc_username = encrypt_data(label17.get().encode('ascii'))
