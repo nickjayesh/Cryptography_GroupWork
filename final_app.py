@@ -276,8 +276,8 @@ def main_page():
     table.heading("Description", text="Platform",anchor=W)
 
     # Sample Data
-    table.insert(parent='', index='end', iid=0, values=("Dhinuk", "1234", "Facebook"))
-    table.pack(pady=20)
+    # table.insert(parent='', index='end', iid=0, values=("Dhinuk", "1234", "Facebook"))
+    # table.pack(pady=20)
 
     myCursor.execute("SELECT * FROM UserContent")
     if myCursor.fetchall() is not None:
@@ -292,7 +292,7 @@ def main_page():
             table.insert(parent='', index='end', iid=1, values=(decrypt_data(array[i][1]), decrypt_data(array[i][2]), decrypt_data(array[i][3])))
             table.pack(pady=20)
 
-            print(decrypt_data(array[i][1]))
+            # print(decrypt_data(array[i][1]))
 
     def addbutton_page():
         ap = Tk()
@@ -365,14 +365,139 @@ def main_page():
         button6=Button(ap,width= 10,height= 1,text= 'Add', command=add_data, border=0,fg=b,bg = 'white',cursor="hand2")
         button6.place(x=180,y=300)
 
+    def modify_page():
+        mp=Tk()
+        mp.title('Modify')
+        mp.geometry('450x400')
+
+        b='#9fbdbf'
+        Frame(mp,width=450,height=400,bg=b).place(x=0,y=0)
+
+        #entering row number
+        def enter(e):
+            label16.delete(0, 'end')
+        def leave(e):
+            if label16.get()=="":
+                label16.insert(0, 'Row Number')
+
+        label16=Entry(mp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+        label16.place(x=90,y= 100)
+        label16.insert(0, 'Row Number')
+        label16.bind("<FocusIn> ",enter)
+        label16.bind("<FocusOut> ",leave)
+
+        Frame(mp,width=300,height=2,bg='black').place(x=85,y=120)
+
+        # entering username
+        def enter(e):
+            label17.delete(0, 'end')
+        def leave(e):
+            if label17.get()=="":
+                label17.insert(0, 'Username')
+
+        label17=Entry(mp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+        label17.place(x=90,y= 140)
+        label17.insert(0, 'Username')
+        label17.bind("<FocusIn> ",enter)
+        label17.bind("<FocusOut> ",leave)
+
+        Frame(mp,width=300,height=2,bg='black').place(x=85,y=160)
+
+        # entering the password
+        def enter(e):
+            label18.delete(0, 'end')
+        def leave(e):
+            if label18.get()=="":
+                label18.insert(0, 'Password',)
+
+        label18=Entry(mp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+        label18.place(x=90,y= 180)
+        label18.insert(0, 'Password')
+        label18.bind("<FocusIn> ",enter)
+        label18.bind("<FocusOut> ",leave)
+
+        Frame(mp,width=300,height=2,bg='black').place(x=85,y=200)
+
+        #entering platform
+
+        def enter(e):
+            label19.delete(0, 'end')
+        def leave(e):
+            if label19.get()=="":
+                label19.insert(0, ' Platform')
+
+        label19=Entry(mp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+        label19.place(x=90,y= 220)
+        label19.insert(0, ' Platform')
+        label19.bind("<FocusIn> ",enter)
+        label19.bind("<FocusOut> ",leave)
+
+        Frame(mp,width=300,height=2,bg='black').place(x=85,y=240)
+
+        def modify_data():
+            for row in table.get_children():
+                table.delete(row)
+            table.insert(parent='', index='end', iid=1, values=(label17.get(), label18.get(), label19.get()))
+            table.pack(pady=20)
+
+            enc_username = encrypt_data(label17.get().encode('ascii'))
+            enc_password = encrypt_data(label18.get().encode('ascii'))
+            enc_platform = encrypt_data(label19.get().encode('ascii'))
+
+            myCursor.execute("DELETE FROM UserContent")
+            connect_userProfile.commit()
+
+            myCursor.execute("INSERT INTO UserContent(username, password, platform) VALUES(?, ?, ?)", (enc_username, enc_password, enc_platform))
+            connect_userProfile.commit()
+
+            mp.destroy()
+
+        button12=Button(mp,width= 10, height= 1, text= 'Modify', command=modify_data, border=0,fg=b,bg = 'white',cursor="hand2")
+        button12.place(x=180,y=300)
+
+    def remove_page():
+        rp=Tk()
+        rp.title('Remove')
+        rp.geometry('300x200')
+
+        b='#9fbdbf'
+        Frame(rp,width=300,height=200,bg=b).place(x=0,y=0)
+
+        #entering row number
+        def enter(e):
+            label16.delete(0, 'end')
+        def leave(e):
+            if label16.get()=="":
+                label16.insert(0, 'Row Number')
+
+        label16=Entry(rp,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',10))
+        label16.place(x=70,y= 60)
+        label16.insert(0, 'Row Number')
+        label16.bind("<FocusIn> ",enter)
+        label16.bind("<FocusOut> ",leave)
+
+        Frame(rp,width=150,height=2,bg='black').place(x=70,y=80)
+
+        def remove_data():
+            for row in table.get_children():
+                table.delete(row)
+
+            myCursor.execute("DELETE FROM UserContent")
+            connect_userProfile.commit()
+
+            rp.destroy()
+
+        button13=Button(rp,width= 10,height= 1,text= 'Remove',command=remove_data, border=0,fg=b,bg = 'white',cursor="hand2")
+        button13.place(x=90,y=120)
+
     # Buttons
     button7 = Button(window,width= 10,height= 1,text= 'Add',command=addbutton_page, border=0,fg=b,bg = 'white',cursor="hand2")
     button7.place(x=350,y=250)
 
-    button8 = Button(window,width= 10,height= 1,text= 'Modify', border=0,fg=b,bg = 'white',cursor="hand2")
+    button8 = Button(window,width= 10,height= 1,text= 'Modify',command=modify_page, border=0,fg=b,bg = 'white',cursor="hand2")
     button8.place(x=350,y=300)
 
-    button9 = Button(window,width= 10,height= 1,text= 'Remove',command=main_page, border=0,fg=b,bg = 'white',cursor="hand2")
+    button9 = Button(window,width= 10,height= 1,text= 'Remove',command=remove_page, border=0,fg=b,bg = 'white',cursor="hand2")
     button9.place(x=350,y=350)
 
 
