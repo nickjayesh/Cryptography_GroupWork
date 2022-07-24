@@ -279,6 +279,21 @@ def main_page():
     table.insert(parent='', index='end', iid=0, values=("Dhinuk", "1234", "Facebook"))
     table.pack(pady=20)
 
+    myCursor.execute("SELECT * FROM UserContent")
+    if myCursor.fetchall() is not None:
+        i = 0
+        while True:
+            myCursor.execute("SELECT * FROM UserContent")
+            array = myCursor.fetchall()
+
+            if len(array) == 0:
+                break
+
+            table.insert(parent='', index='end', iid=1, values=(decrypt_data(array[i][1]), decrypt_data(array[i][2]), decrypt_data(array[i][3])))
+            table.pack(pady=20)
+
+            print(decrypt_data(array[i][1]))
+
     def addbutton_page():
         ap = Tk()
         ap.title('Add')
@@ -321,20 +336,21 @@ def main_page():
         # entering platform
         def enter(e):
             label13.delete(0, 'end')
+
         def leave(e):
-            if label13.get()=="":
+            if label13.get() == "":
                 label13.insert(0, ' Platform')
 
         label13=Entry(ap,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
         label13.place(x=90,y= 210)
         label13.insert(0, ' Platform')
-        label13.bind("<FocusIn> ",enter)
-        label13.bind("<FocusOut> ",leave)
+        label13.bind("<FocusIn> ", enter)
+        label13.bind("<FocusOut> ", leave)
 
-        Frame(ap,width=300,height=2,bg='black').place(x=85,y=230)
+        Frame(ap, width=300, height=2, bg='black').place(x=85,y=230)
 
         def add_data():
-            table.insert(parent='', index='end', iid=1, values=(label11, label12, label13))
+            table.insert(parent='', index='end', iid=1, values=(label11.get(), label12.get(), label13.get()))
             table.pack(pady=20)
 
             enc_username = encrypt_data(label11.get().encode('ascii'))
@@ -344,15 +360,16 @@ def main_page():
             myCursor.execute("INSERT INTO UserContent(username, password, platform) VALUES(?, ?, ?)", (enc_username, enc_password, enc_platform))
             connect_userProfile.commit()
 
+            ap.destroy()
+
         button6=Button(ap,width= 10,height= 1,text= 'Add', command=add_data, border=0,fg=b,bg = 'white',cursor="hand2")
         button6.place(x=180,y=300)
-
 
     # Buttons
     button7 = Button(window,width= 10,height= 1,text= 'Add',command=addbutton_page, border=0,fg=b,bg = 'white',cursor="hand2")
     button7.place(x=350,y=250)
 
-    button8 = Button(window,width= 10,height= 1,text= 'Modify',command=main_page, border=0,fg=b,bg = 'white',cursor="hand2")
+    button8 = Button(window,width= 10,height= 1,text= 'Modify', border=0,fg=b,bg = 'white',cursor="hand2")
     button8.place(x=350,y=300)
 
     button9 = Button(window,width= 10,height= 1,text= 'Remove',command=main_page, border=0,fg=b,bg = 'white',cursor="hand2")
@@ -363,26 +380,25 @@ def main_page():
 s = ttk.Style()
 s.theme_use('clam')
 s.configure("red.Horizontal.TProgressbar", foreground='blue', background='#210b47')
-progress=Progressbar(window,style="red.Horizontal.TProgressbar",orient=HORIZONTAL,length=1000,mode='determinate',)
+progress = Progressbar(window,style="red.Horizontal.TProgressbar", orient=HORIZONTAL, length=1000,mode='determinate',)
+
 
 def Progress_bar():
 
-    label2=Label(window,text='Loading...',fg='white',bg=a, font=('Calibri (Body)',10))
+    label2 = Label(window,text='Loading...',fg='white',bg=a, font=('Calibri (Body)',10))
     label2.place(x=20,y=360)
 
     import time
-    r=0
+    r = 0
     for i in range(100):
         progress['value']=r
         window.update_idletasks()
         time.sleep(0.02)
-        r=r+1
-
-
+        r = r+1
     signup_page()
 
 
-#positioN  of the loading bar
+# position  of the loading bar
 progress.place(x=-50,y=390)
 
 #login button
@@ -398,26 +414,18 @@ button1.bind("<Enter>",hover_effect )
 button1.bind("<Leave>",leave_hover_effect )
 
 
-
-
-
-#login button
+# login button
 def hover_effect(e):
-    button3["bg"]= "#295154"
+    button3["bg"] = "#295154"
+
 
 def leave_hover_effect(e):
-    button3["bg"]="White"
+    button3["bg"] = "White"
 
-button3=Button(window,width= 10,height= 1,text= 'Login',command=login_page, border=0,fg=a,bg ='white',cursor="hand2")
+button3 = Button(window,width= 10,height= 1,text= 'Login',command=login_page, border=0,fg=a,bg ='white',cursor="hand2")
 button3.place(x=20,y=300)
 
-button3.bind("<Enter>",hover_effect )
-button3.bind("<Leave>",leave_hover_effect )
-
-
-
-
-
-
+button3.bind("<Enter>", hover_effect )
+button3.bind("<Leave>", leave_hover_effect )
 
 window.mainloop()
