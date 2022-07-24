@@ -23,7 +23,6 @@ myCursor.execute("""
 
 myCursor.execute("""
     CREATE TABLE IF NOT EXISTS UserContent(
-    id INTEGER PRIMARY KEY,
     username TEXT NOT NULL,
     password TEXT NOT NULL,
     platform TEXT NOT NULL)
@@ -264,24 +263,90 @@ def main_page():
 
     # Table creation
     table = ttk.Treeview(window)
-    table['columns']= ("Username", "Password", "Description")
+    table['columns'] = ("Username", "Password", "Description")
 
-    #formatting  the column
-    table.column('#0', width=120, minwidth=25)
+    # formatting  the column
     table.column("Username", anchor=W,width=120)
     table.column("Password",anchor=CENTER,width= 80)
     table.column("Description", anchor=W , width=120)
 
-    #headings
-
-    table.heading("#0",text="ID",anchor=W)
+    # headings
     table.heading("Username",text="Username",anchor=W)
     table.heading("Password",text="Password", anchor=CENTER)
     table.heading("Description", text="Platform",anchor=W)
 
     # Sample Data
-    table.insert(parent='',index='end',iid=0,text="1",values=("Dhinuk","1234","Hi"))
+    table.insert(parent='', index='end', iid=0, values=("Dhinuk", "1234", "Facebook"))
     table.pack(pady=20)
+
+    def addbutton_page():
+        ap = Tk()
+        ap.title('Add')
+        ap.geometry('450x400')
+
+        b='#9fbdbf'
+        Frame(ap,width=450,height=400,bg=b).place(x=0,y=0)
+
+        # entering username
+        def enter(e):
+            label11.delete(0, 'end')
+        def leave(e):
+            if label11.get()=="":
+                label11.insert(0, 'Username')
+
+        label11=Entry(ap,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+        label11.place(x=90,y= 110)
+        label11.insert(0, 'Username')
+        label11.bind("<FocusIn> ",enter)
+        label11.bind("<FocusOut> ",leave)
+
+        Frame(ap,width=300,height=2,bg='black').place(x=85,y=132)
+
+        # entering the password
+        def enter(e):
+            label12.delete(0, 'end')
+
+        def leave(e):
+            if label12.get() == "":
+                label12.insert(0, 'Password',)
+
+        label12 = Entry(ap,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+        label12.place(x=90,y= 160)
+        label12.insert(0, 'Password')
+        label12.bind("<FocusIn> ",enter)
+        label12.bind("<FocusOut> ",leave)
+
+        Frame(ap,width=300,height=2,bg='black').place(x=85,y=180)
+
+        # entering platform
+        def enter(e):
+            label13.delete(0, 'end')
+        def leave(e):
+            if label13.get()=="":
+                label13.insert(0, ' Platform')
+
+        label13=Entry(ap,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
+        label13.place(x=90,y= 210)
+        label13.insert(0, ' Platform')
+        label13.bind("<FocusIn> ",enter)
+        label13.bind("<FocusOut> ",leave)
+
+        Frame(ap,width=300,height=2,bg='black').place(x=85,y=230)
+
+        def add_data():
+            table.insert(parent='', index='end', iid=1, values=(label11, label12, label13))
+            table.pack(pady=20)
+
+            enc_username = encrypt_data(label11.get().encode('ascii'))
+            enc_password = encrypt_data(label12.get().encode('ascii'))
+            enc_platform = encrypt_data(label13.get().encode('ascii'))
+
+            myCursor.execute("INSERT INTO UserContent(username, password, platform) VALUES(?, ?, ?)", (enc_username, enc_password, enc_platform))
+            connect_userProfile.commit()
+
+        button6=Button(ap,width= 10,height= 1,text= 'Add', command=add_data, border=0,fg=b,bg = 'white',cursor="hand2")
+        button6.place(x=180,y=300)
+
 
     # Buttons
     button7 = Button(window,width= 10,height= 1,text= 'Add',command=addbutton_page, border=0,fg=b,bg = 'white',cursor="hand2")
@@ -294,78 +359,7 @@ def main_page():
     button9.place(x=350,y=350)
 
 
-def addbutton_page():
-    ap=Tk()
-    ap.title('Add')
-    ap.geometry('450x400')
-
-    b='#9fbdbf'
-    Frame(ap,width=450,height=400,bg=b).place(x=0,y=0)
-
-    # entering username
-    def enter(e):
-        label11.delete(0, 'end')
-    def leave(e):
-        if label11.get()=="":
-            label11.insert(0, 'Username')
-
-    label11=Entry(ap,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
-    label11.place(x=90,y= 110)
-    label11.insert(0, 'Username')
-    label11.bind("<FocusIn> ",enter)
-    label11.bind("<FocusOut> ",leave)
-
-    Frame(ap,width=300,height=2,bg='black').place(x=85,y=132)
-
-
-
-    # entering the password
-    def enter(e):
-        label12.delete(0, 'end')
-    def leave(e):
-        if label12.get()=="":
-            label12.insert(0, 'Password',)
-
-    label12=Entry(ap,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
-    label12.place(x=90,y= 160)
-    label12.insert(0, 'Password')
-    label12.bind("<FocusIn> ",enter)
-    label12.bind("<FocusOut> ",leave)
-
-    Frame(ap,width=300,height=2,bg='black').place(x=85,y=180)
-
-    #entering platform
-
-    def enter(e):
-        label13.delete(0, 'end')
-    def leave(e):
-        if label13.get()=="":
-            label13.insert(0, ' Platform')
-
-    label13=Entry(ap,width= 30, fg='black', border=0,bg='#9fbdbf',font=('Calibri (Body)',12))
-    label13.place(x=90,y= 210)
-    label13.insert(0, ' Platform')
-    label13.bind("<FocusIn> ",enter)
-    label13.bind("<FocusOut> ",leave)
-
-    Frame(ap,width=300,height=2,bg='black').place(x=85,y=230)
-
-    button6=Button(ap,width= 10,height= 1,text= 'Add', border=0,fg=b,bg = 'white',cursor="hand2")
-    button6.place(x=180,y=300)
-
-
-
-
-
-
-
-
-
-
-
-
-
-#style for the loading bar in the welcome page
+# style for the loading bar in the welcome page
 s = ttk.Style()
 s.theme_use('clam')
 s.configure("red.Horizontal.TProgressbar", foreground='blue', background='#210b47')
